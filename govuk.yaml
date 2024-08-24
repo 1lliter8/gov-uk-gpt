@@ -1,0 +1,194 @@
+openapi: 3.1.0
+info:
+  title: GOV.UK Search API
+  description: Publicly accessible API for searching GOV.UK content.
+  version: v1.0.0
+servers:
+  - url: https://www.gov.uk/api
+paths:
+  /search.json:
+    get:
+      description: Search for GOV.UK content based on various parameters.
+      operationId: SearchGovUkContent
+      parameters:
+        - name: q
+          in: query
+          description: Search query. Any well-formed UTF-8 values are allowed.
+          required: true
+          schema:
+            type: string
+        - name: count
+          in: query
+          description: Limits the number of results returned. Default is 10, maximum is 1500.
+          required: false
+          schema:
+            type: integer
+        - name: filter_format
+          in: query
+          description: Filters results by the specified document format (e.g., transaction, guidance, etc.).
+          required: false
+          schema:
+            type: string
+        - name: filter_public_timestamp
+          in: query
+          description: "Filters documents published within a specific date range. Format: from:<date>,to:<date>. Dates are ISO
+            formatted and inclusive."
+          required: false
+          schema:
+            type: string
+      deprecated: false
+      responses:
+        "200":
+          description: Successful response with search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResults"
+        "422":
+          description: Invalid request due to unknown or invalid parameters
+components:
+  schemas:
+    Organisation:
+      type: object
+      properties:
+        organisation_type:
+          type: string
+          description: Type of the organisation, e.g., ministerial_department, non_ministerial_department.
+        organisation_state:
+          type: string
+          description: Current state of the organisation, e.g., live, closed.
+        acronym:
+          type: string
+          description: Acronym of the organisation.
+        content_id:
+          type: string
+          description: Unique content identifier of the organisation.
+        link:
+          type: string
+          description: Link to the organisation's page.
+        title:
+          type: string
+          description: Full title of the organisation.
+        analytics_identifier:
+          type: string
+          description: Analytics identifier for tracking purposes.
+        organisation_crest:
+          type: string
+          description: The crest used by the organisation.
+        organisation_brand:
+          type: string
+          description: Branding of the organisation.
+        child_organisations:
+          type: array
+          description: List of child organisations.
+          items:
+            type: string
+        parent_organisations:
+          type: array
+          description: List of parent organisations.
+          items:
+            type: string
+        superseded_organisations:
+          type: array
+          description: List of superseded organisations.
+          items:
+            type: string
+        logo_formatted_title:
+          type: string
+          description: Formatted title displayed alongside the organisation logo.
+        public_timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the last update for the organisation.
+        slug:
+          type: string
+          description: Slug identifier of the organisation.
+    SearchResults:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of search results.
+        start:
+          type: integer
+          description: The starting index of the returned results.
+        results:
+          type: array
+          description: An array of search result objects.
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+                description: A brief summary of the document.
+              format:
+                type: string
+                description: The format of the document, e.g., transaction, guide.
+              link:
+                type: string
+                description: The link to the document.
+              organisations:
+                type: array
+                description: List of associated organisations.
+                items:
+                  $ref: "#/components/schemas/Organisation"
+              public_timestamp:
+                type: string
+                format: date-time
+                description: Timestamp when the document was last published or updated.
+              title:
+                type: string
+                description: The title of the document.
+              world_locations:
+                type: array
+                description: List of associated world locations.
+                items:
+                  type: string
+              topical_events:
+                type: array
+                description: List of associated topical events.
+                items:
+                  type: string
+              organisation_content_ids:
+                type: array
+                description: List of content IDs for associated organisations.
+                items:
+                  type: string
+              expanded_organisations:
+                type: array
+                description: Expanded list of associated organisations with detailed information.
+                items:
+                  $ref: "#/components/schemas/Organisation"
+              index:
+                type: string
+                description: Index where the document is stored, e.g., govuk, government.
+              es_score:
+                type:
+                  - number
+                  - "null"
+                description: Elasticsearch relevance score.
+              _id:
+                type: string
+                description: Unique identifier of the document.
+              elasticsearch_type:
+                type: string
+                description: Type of Elasticsearch document.
+              document_type:
+                type: string
+                description: Type of document, e.g., edition.
+        aggregates:
+          type: object
+          description: Aggregated search result data.
+        suggested_queries:
+          type: array
+          description: List of suggested queries.
+          items:
+            type: string
+        suggested_autocomplete:
+          type: array
+          description: List of suggested autocomplete queries.
+          items:
+            type: string
+        es_cluster:
+          type: string
+          description: Elasticsearch cluster identifier.
