@@ -23,12 +23,6 @@ paths:
           required: false
           schema:
             type: integer
-        - name: filter_format
-          in: query
-          description: Filters results by the specified document format (e.g., transaction, guidance, etc.).
-          required: false
-          schema:
-            type: string
         - name: filter_public_timestamp
           in: query
           description: "Filters documents published within a specific date range. Format: from:<date>,to:<date>. Dates are ISO
