@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: GOV.UK Search API
-  description: Publicly accessible API for searching GOV.UK content.
-  version: v1.0.0
+  title: GOV.UK Search and Content API
+  description: Publicly accessible API for searching GOV.UK content and retrieving detailed content data.
+  version: v1.1.0
 servers:
   - url: https://www.gov.uk/api
 paths:
@@ -46,6 +46,26 @@ paths:
                 $ref: "#/components/schemas/SearchResults"
         "422":
           description: Invalid request due to unknown or invalid parameters
+  /content/{base_path}:
+    get:
+      description: Retrieve content details for a specific GOV.UK page based on its path.
+      operationId: GetGovUkContent
+      parameters:
+        - name: base_path
+          in: path
+          description: The path of the content on GOV.UK, without the leading slash.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response with the content details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentDetails"
+        "404":
+          description: Content not found
 components:
   schemas:
     Organisation:
@@ -192,3 +212,70 @@ components:
         es_cluster:
           type: string
           description: Elasticsearch cluster identifier.
+    ContentDetails:
+      type: object
+      properties:
+        analytics_identifier:
+          type: string
+          nullable: true
+          description: Analytics identifier for tracking purposes.
+        base_path:
+          type: string
+          description: The base path of the content on GOV.UK.
+        content_id:
+          type: string
+          description: Unique content identifier of the content.
+        description:
+          type: string
+          description: Brief description of the content.
+        details:
+          type: object
+          description: Detailed information about the content.
+          properties:
+            external_related_links:
+              type: array
+              description: List of external related links.
+              items:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    description: Title of the external link.
+                  url:
+                    type: string
+                    description: URL of the external link.
+            hide_chapter_navigation:
+              type: boolean
+              description: Flag indicating if chapter navigation should be hidden.
+            parts:
+              type: array
+              description: List of parts or sections in the content.
+              items:
+                type: object
+                properties:
+                  body:
+                    type: string
+                    description: The HTML content of the part.
+                  slug:
+                    type: string
+                    description: Slug identifier for the part.
+                  title:
+                    type: string
+                    description: Title of the part.
+        document_type:
+          type: string
+          description: The type of the document (e.g., guide, answer).
+        first_published_at:
+          type: string
+          format: date-time
+          description: Timestamp when the content was first published.
+        public_updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the content was last updated.
+        title:
+          type: string
+          description: Title of the content.
+        web_url:
+          type: string
+          description: The web URL of the content on GOV.UK.
